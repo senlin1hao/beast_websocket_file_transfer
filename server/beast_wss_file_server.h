@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <cstdint>
 
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
