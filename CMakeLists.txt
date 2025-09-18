@@ -15,7 +15,6 @@ find_package(OpenSSL REQUIRED)
 
 include_directories(
     ${Boost_INCLUDE_DIRS}
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${FILE_SERVER_DIR}
     ${FILE_CLIENT_DIR}
 )

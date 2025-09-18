@@ -10,8 +10,7 @@
 #include <boost/asio/ssl.hpp>
 #include <boost/asio/connect.hpp>
 #include <boost/beast.hpp>
-
-#include "ssl_teardown.h"
+#include <boost/beast/ssl.hpp>
 
 namespace beast = boost::beast;
 namespace websocket = beast::websocket;
@@ -29,7 +28,7 @@ private:
     net::io_context net_context;
     ssl::context ssl_context;
     tcp::resolver resolver;
-    websocket::stream<ssl::stream<tcp::socket>> ws;
+    websocket::stream<beast::ssl_stream<beast::tcp_stream>> ws;
     beast::flat_buffer net_buffer;
     string host;
     uint16_t port;

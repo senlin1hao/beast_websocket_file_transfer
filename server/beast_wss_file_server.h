@@ -9,8 +9,7 @@
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 #include <boost/beast.hpp>
-
-#include "ssl_teardown.h"
+#include <boost/beast/ssl.hpp>
 
 namespace beast = boost::beast;
 namespace websocket = beast::websocket;
@@ -26,7 +25,7 @@ using std::vector;
 class WssFileServerSession : public std::enable_shared_from_this<WssFileServerSession>
 {
 private:
-    websocket::stream<ssl::stream<tcp::socket>> ws;
+    websocket::stream<beast::ssl_stream<beast::tcp_stream>> ws;
     beast::flat_buffer net_buffer;
     string file_name;
     ifstream file;

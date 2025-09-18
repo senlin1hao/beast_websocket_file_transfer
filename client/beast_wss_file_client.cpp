@@ -34,7 +34,7 @@ int WssFileClient::download_file()
     beast::error_code ec;
 
     const auto results = resolver.resolve(host, std::to_string(port));
-    net::connect(ws.next_layer().next_layer(), results, ec);
+    ws.next_layer().next_layer().connect(results, ec);
     if (ec)
     {
         std::cerr << "connect error: " << boost::locale::conv::between(ec.message(), "UTF-8", "GBK") << std::endl;
