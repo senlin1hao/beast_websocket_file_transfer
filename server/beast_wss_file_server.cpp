@@ -204,7 +204,7 @@ void WssFileServerSession::session_close()
 }
 
 WssFileServerSession::WssFileServerSession(tcp::socket&& socket, ssl::context& ctx)
-    : ws(std::move(socket), ctx), file_buffer(4096)
+    : ws(std::move(socket), ctx), file_buffer(wss_file_server::FILE_BUFFER_SIZE)
 {
 }
 

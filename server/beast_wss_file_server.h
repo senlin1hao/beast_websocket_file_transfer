@@ -25,6 +25,7 @@ using std::vector;
 namespace wss_file_server
 {
     constexpr int64_t NETWORK_TIMEOUT = 10; // seconds
+    constexpr size_t FILE_BUFFER_SIZE = 4096;
 }
 
 class WssFileServerSession : public std::enable_shared_from_this<WssFileServerSession>
