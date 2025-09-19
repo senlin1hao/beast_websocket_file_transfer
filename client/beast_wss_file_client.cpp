@@ -21,18 +21,24 @@ using std::vector;
 
 const char* DOWNLOAD_DIR = "./download";
 
-WssFileClient::WssFileClient(const char* ip, uint16_t port, const char* file_name)
-    : net_context(1), ssl_context(ssl::context::tls_client), resolver(net_context), ws(net_context, ssl_context),
-      host(ip), port(port), file_name(file_name), file_size(0), received_size(0)
+WssFileClient::WssFileClient(const char* ip, uint16_t port)
+    : connected(false), net_context(1), ssl_context(ssl::context::tls_client), ws(net_context, ssl_context),
+      host(ip), port(port)
 {
     ssl_context.set_verify_mode(ssl::verify_none);  // 自签证书，禁用验证
     ssl_context.set_options(ssl::context::default_workarounds | ssl::context::no_sslv2 | ssl::context::no_sslv3 | ssl::context::no_tlsv1 | ssl::context::no_tlsv1_1 | ssl::context::single_dh_use);
 }
 
-int WssFileClient::download_file()
+int WssFileClient::connect()
 {
+    if (connected)
+    {
+        return 0;
+    }
+
     beast::error_code ec;
 
+    tcp::resolver resolver(net_context);
     const auto results = resolver.resolve(host, std::to_string(port));
 
     ws.next_layer().next_layer().connect(results, ec);
@@ -58,7 +64,21 @@ int WssFileClient::download_file()
         return -1;
     }
 
-    string request = "FILE: " + file_name;
+    connected = true;
+
+    return 0;
+}
+
+int WssFileClient::download_file(string_view file_name)
+{
+    if (!connected)
+    {
+        std::cerr << "not connected" << std::endl;
+        return -1;
+    }
+
+    string request = "FILE: ";
+    request += file_name;
     ws.write(net::buffer(request));
 
     ws.read(net_buffer);
@@ -72,6 +92,7 @@ int WssFileClient::download_file()
         return -1;
     }
 
+    std::cout << "response: " << response << std::endl;
     string file_name_received = std::regex_replace(response, valid_response, "$1");
     if (file_name_received != file_name)
     {
@@ -79,12 +100,12 @@ int WssFileClient::download_file()
         ws.close(websocket::close_code::normal);
         return -1;
     }
-    file_size = std::stoul(std::regex_replace(response, valid_response, "$2"));
+    size_t file_size = std::stoul(std::regex_replace(response, valid_response, "$2"));
 
     std::filesystem::path file_path(DOWNLOAD_DIR);
     file_path.append(file_name);
 
-    file.open(file_path.string(), std::ios::binary);
+    ofstream file(file_path.string(), std::ios::binary);
     if (!file.is_open())
     {
         std::cerr << "open file error: " << file_path << std::endl;
@@ -92,6 +113,7 @@ int WssFileClient::download_file()
     }
 
     ws.binary(true);
+    size_t received_size = 0;
     while (received_size < file_size)
     {
         ws.read(net_buffer);
@@ -115,10 +137,18 @@ int WssFileClient::download_file()
         return -1;
     }
 
-    ws.close(websocket::close_code::normal);
     file.close();
 
     std::cout << "download success: " << file_path << std::endl;
+
+    return 0;
+}
+
+int WssFileClient::disconnect()
+{
+    ws.close(websocket::close_code::normal);
+
+    connected = false;
 
     return 0;
 }

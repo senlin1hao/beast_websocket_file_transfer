@@ -1,7 +1,6 @@
 #ifndef _BEAST_WSS_FILE_CLIENT_H_INCLUDED_
 #define _BEAST_WSS_FILE_CLIENT_H_INCLUDED_
 
-#include <fstream>
 #include <string>
 #include <vector>
 #include <cstdint>
@@ -19,29 +18,26 @@ namespace ssl = boost::asio::ssl;
 
 using tcp = boost::asio::ip::tcp;
 using std::string;
+using std::string_view;
 using std::vector;
-using std::ofstream;
 
 class WssFileClient
 {
 private:
+    bool connected;
     net::io_context net_context;
     ssl::context ssl_context;
-    tcp::resolver resolver;
     websocket::stream<beast::ssl_stream<beast::tcp_stream>> ws;
     beast::flat_buffer net_buffer;
     string host;
     uint16_t port;
-    string file_name;
-    vector<char> file_buffer;
-    size_t file_size;
-    size_t received_size;
-    ofstream file;
 
 public:
-    WssFileClient(const char* ip, uint16_t port, const char* file_name);
+    WssFileClient(const char* ip, uint16_t port);
 
-    int download_file();
+    int connect();
+    int download_file(string_view file_name);
+    int disconnect();
 };
 
 #endif /* _BEAST_WSS_FILE_CLIENT_H_INCLUDED_ */
