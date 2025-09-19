@@ -6,6 +6,7 @@
 #include <filesystem>
 
 #include <boost/locale.hpp>
+#include <boost/beast/core.hpp>
 
 #include "beast_wss_file_server.h"
 
@@ -24,6 +25,7 @@ const char* FILE_DIR = "./files";
 
 void WssFileServerSession::on_ssl_handshake()
 {
+    ws.next_layer().next_layer().expires_after(std::chrono::seconds(wss_file_server::NETWORK_TIMEOUT));
     ws.async_accept([self = shared_from_this()](beast::error_code ec) {
         if (ec)
         {
@@ -37,6 +39,7 @@ void WssFileServerSession::on_ssl_handshake()
 
 void WssFileServerSession::on_websocket_accept()
 {
+    ws.next_layer().next_layer().expires_after(std::chrono::seconds(wss_file_server::NETWORK_TIMEOUT));
     ws.async_read(net_buffer, [self = shared_from_this()](beast::error_code ec, size_t) {
         if (ec)
         {
@@ -55,6 +58,7 @@ void WssFileServerSession::on_read_request()
 
     if ((request.size() < 6) || (request.substr(0, 6) != "FILE: "))
     {
+        ws.next_layer().next_layer().expires_after(std::chrono::seconds(wss_file_server::NETWORK_TIMEOUT));
         std::shared_ptr<string> response = std::make_shared<string>("INVALID REQUEST");
         ws.async_write(net::buffer(*response), [self = shared_from_this()](beast::error_code ec, size_t) {
             if (ec)
@@ -62,6 +66,8 @@ void WssFileServerSession::on_read_request()
                 std::cerr << "write error: " << boost::locale::conv::between(ec.message(), "UTF-8", "GBK") << std::endl;
                 return;
             }
+
+            self->session_close();
         });
 
         return;
@@ -71,6 +77,7 @@ void WssFileServerSession::on_read_request()
 
     if (!is_save_path(file_name))
     {
+        ws.next_layer().next_layer().expires_after(std::chrono::seconds(wss_file_server::NETWORK_TIMEOUT));
         std::shared_ptr<string> response = std::make_shared<string>("FILE NOT FOUND");
         ws.async_write(net::buffer(*response), [self = shared_from_this()](beast::error_code ec, size_t) {
             if (ec)
@@ -78,6 +85,8 @@ void WssFileServerSession::on_read_request()
                 std::cerr << "write error: " << boost::locale::conv::between(ec.message(), "UTF-8", "GBK") << std::endl;
                 return;
             }
+
+            self->session_close();
         });
         return;
     }
@@ -108,6 +117,7 @@ void WssFileServerSession::send_file()
     file.open(file_path.string(), std::ios::binary);
     if (!file.is_open())
     {
+        ws.next_layer().next_layer().expires_after(std::chrono::seconds(wss_file_server::NETWORK_TIMEOUT));
         std::shared_ptr<string> response = std::make_shared<string>("SERVER FILE OPEN ERROR");
         ws.async_write(net::buffer(*response), [self = shared_from_this()](beast::error_code ec, size_t) {
             if (ec)
@@ -115,6 +125,8 @@ void WssFileServerSession::send_file()
                 std::cerr << "write error: " << boost::locale::conv::between(ec.message(), "UTF-8", "GBK") << std::endl;
                 return;
             }
+
+            self->session_close();
         });
         return;
     }
@@ -123,6 +135,7 @@ void WssFileServerSession::send_file()
     size_t file_size = file.tellg();
     file.seekg(0, file.beg);
 
+    ws.next_layer().next_layer().expires_after(std::chrono::seconds(wss_file_server::NETWORK_TIMEOUT));
     std::shared_ptr<string> response = std::make_shared<string>("FILE: " + file_name + " SIZE: " + std::to_string(file_size));
     ws.async_write(net::buffer(*response), [self = shared_from_this(), file_size](beast::error_code ec, size_t) {
         if (ec)
@@ -141,6 +154,7 @@ void WssFileServerSession::send_next_block(size_t file_size, size_t sent_size)
     file.read(file_buffer.data(), file_buffer.size());
     size_t read_size = file.gcount();
 
+    ws.next_layer().next_layer().expires_after(std::chrono::seconds(wss_file_server::NETWORK_TIMEOUT));
     ws.async_write(net::buffer(file_buffer.data(), read_size), [self = shared_from_this(), sent_size, read_size, file_size](beast::error_code ec, size_t) {
         if (ec)
         {
@@ -161,6 +175,7 @@ void WssFileServerSession::send_next_block(size_t file_size, size_t sent_size)
 
 void WssFileServerSession::send_file_end()
 {
+    ws.next_layer().next_layer().expires_after(std::chrono::seconds(wss_file_server::NETWORK_TIMEOUT));
     std::shared_ptr<string> response = std::make_shared<string>("FILE END");
     ws.async_write(net::buffer(*response), [self = shared_from_this()](beast::error_code ec, size_t) {
         if (ec)
@@ -175,6 +190,7 @@ void WssFileServerSession::send_file_end()
 
 void WssFileServerSession::session_close()
 {
+    ws.next_layer().next_layer().expires_after(std::chrono::seconds(wss_file_server::NETWORK_TIMEOUT));
     ws.async_close(websocket::close_code::normal, [self = shared_from_this()](beast::error_code ec) {
         if (ec)
         {
@@ -194,6 +210,7 @@ WssFileServerSession::WssFileServerSession(tcp::socket&& socket, ssl::context& c
 
 void WssFileServerSession::run()
 {
+    ws.next_layer().next_layer().expires_after(std::chrono::seconds(wss_file_server::NETWORK_TIMEOUT));
     ws.next_layer().async_handshake(ssl::stream_base::server, [self = shared_from_this()](beast::error_code ec) {
         if (ec)
         {

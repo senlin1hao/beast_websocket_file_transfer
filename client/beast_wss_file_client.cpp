@@ -34,6 +34,7 @@ int WssFileClient::download_file()
     beast::error_code ec;
 
     const auto results = resolver.resolve(host, std::to_string(port));
+
     ws.next_layer().next_layer().connect(results, ec);
     if (ec)
     {

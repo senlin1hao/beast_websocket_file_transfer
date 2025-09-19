@@ -22,6 +22,11 @@ using std::string;
 using std::thread;
 using std::vector;
 
+namespace wss_file_server
+{
+    constexpr int64_t NETWORK_TIMEOUT = 10; // seconds
+}
+
 class WssFileServerSession : public std::enable_shared_from_this<WssFileServerSession>
 {
 private:
