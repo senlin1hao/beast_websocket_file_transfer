@@ -175,6 +175,8 @@ void WssFileServerSession::send_next_block(size_t file_size, size_t sent_size)
 
 void WssFileServerSession::send_file_end()
 {
+    file.close();
+
     ws.next_layer().next_layer().expires_after(std::chrono::seconds(wss_file_server::NETWORK_TIMEOUT));
     std::shared_ptr<string> response = std::make_shared<string>("FILE END");
     ws.async_write(net::buffer(*response), [self = shared_from_this()](beast::error_code ec, size_t) {
@@ -184,7 +186,7 @@ void WssFileServerSession::send_file_end()
             return;
         }
 
-        self->session_close();
+        self->on_websocket_accept();
     });
 }
 

@@ -12,8 +12,11 @@ int main(int argc, char* argv[])
 
     const char* file_name = argv[1];
 
-    WssFileClient client("127.0.0.1", 34094, file_name);
-    client.download_file();
+    WssFileClient client("127.0.0.1", 34094);
+
+    client.connect();
+    client.download_file(file_name);
+    client.disconnect();
 
     return 0;
 }
