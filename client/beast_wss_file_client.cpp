@@ -146,6 +146,12 @@ int WssFileClient::download_file(string_view file_name)
 
 int WssFileClient::disconnect()
 {
+    if (!connected)
+    {
+        std::cerr << "not connected" << std::endl;
+        return -1;
+    }
+
     ws.close(websocket::close_code::normal);
 
     connected = false;
