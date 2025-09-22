@@ -28,7 +28,6 @@ private:
     net::io_context net_context;
     ssl::context ssl_context;
     websocket::stream<beast::ssl_stream<beast::tcp_stream>> ws;
-    beast::flat_buffer net_buffer;
     string host;
     uint16_t port;
 

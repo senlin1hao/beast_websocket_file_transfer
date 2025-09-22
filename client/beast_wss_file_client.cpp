@@ -81,6 +81,7 @@ int WssFileClient::download_file(string_view file_name)
     request += file_name;
     ws.write(net::buffer(request));
 
+    beast::flat_buffer net_buffer;
     ws.read(net_buffer);
     string response = beast::buffers_to_string(net_buffer.data());
     net_buffer.consume(net_buffer.size());
