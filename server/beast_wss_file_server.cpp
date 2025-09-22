@@ -111,7 +111,7 @@ bool WssFileServerSession::is_save_path(const string& path)
     std::filesystem::path relative_path = std::filesystem::relative(request_path, save_path);
     string relative_path_str = relative_path.string();
 
-    return ((!relative_path_str.empty()) && (relative_path_str.find("..") != 0));
+    return ((!relative_path_str.empty()) && (relative_path_str.find("..") == string::npos));
 }
 
 void WssFileServerSession::send_file()
