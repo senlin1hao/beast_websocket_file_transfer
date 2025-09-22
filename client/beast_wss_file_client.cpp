@@ -36,6 +36,14 @@ WssFileClient::WssFileClient(const char* host, uint16_t port, const char* cert_f
     ws.next_layer().set_verify_mode(ssl::context::verify_peer | ssl::context::verify_fail_if_no_peer_cert);
 }
 
+WssFileClient::~WssFileClient()
+{
+    if (connected)
+    {
+        disconnect();
+    }
+}
+
 int WssFileClient::connect()
 {
     if (connected)

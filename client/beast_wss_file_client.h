@@ -33,6 +33,7 @@ private:
 
 public:
     WssFileClient(const char* host, uint16_t port, const char* cert_file);
+    ~WssFileClient();
 
     int connect();
     int download_file(string_view file_name);
