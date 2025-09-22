@@ -33,7 +33,7 @@ private:
     uint16_t port;
 
 public:
-    WssFileClient(const char* ip, uint16_t port);
+    WssFileClient(const char* host, uint16_t port);
 
     int connect();
     int download_file(string_view file_name);

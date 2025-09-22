@@ -21,9 +21,9 @@ using std::vector;
 
 const char* DOWNLOAD_DIR = "./download";
 
-WssFileClient::WssFileClient(const char* ip, uint16_t port)
+WssFileClient::WssFileClient(const char* host, uint16_t port)
     : connected(false), net_context(1), ssl_context(ssl::context::tls_client), ws(net_context, ssl_context),
-      host(ip), port(port)
+      host(host), port(port)
 {
     ssl_context.set_verify_mode(ssl::verify_none);  // 自签证书，禁用验证
     ssl_context.set_options(ssl::context::default_workarounds | ssl::context::no_sslv2 | ssl::context::no_sslv3 | ssl::context::no_tlsv1 | ssl::context::no_tlsv1_1 | ssl::context::single_dh_use);
