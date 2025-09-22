@@ -34,6 +34,7 @@ WssFileClient::WssFileClient(const char* host, uint16_t port, const char* cert_f
     }
     ssl_context.load_verify_file(cert_file);
     ws.next_layer().set_verify_mode(ssl::context::verify_peer | ssl::context::verify_fail_if_no_peer_cert);
+    ws.next_layer().set_verify_callback(ssl::host_name_verification(this->host));
 }
 
 WssFileClient::~WssFileClient()
