@@ -21,12 +21,19 @@ using std::vector;
 
 const char* DOWNLOAD_DIR = "./download";
 
-WssFileClient::WssFileClient(const char* host, uint16_t port)
+WssFileClient::WssFileClient(const char* host, uint16_t port, const char* cert_file)
     : connected(false), net_context(1), ssl_context(ssl::context::tls_client), ws(net_context, ssl_context),
       host(host), port(port)
 {
-    ssl_context.set_verify_mode(ssl::verify_none);  // 自签证书，禁用验证
     ssl_context.set_options(ssl::context::default_workarounds | ssl::context::no_sslv2 | ssl::context::no_sslv3 | ssl::context::no_tlsv1 | ssl::context::no_tlsv1_1 | ssl::context::single_dh_use);
+    std::filesystem::path cert_file_path(cert_file);
+    if (!std::filesystem::exists(cert_file_path))
+    {
+        std::cerr << "cert file not exist: " << cert_file << std::endl;
+        return;
+    }
+    ssl_context.load_verify_file(cert_file);
+    ws.next_layer().set_verify_mode(ssl::context::verify_peer | ssl::context::verify_fail_if_no_peer_cert);
 }
 
 int WssFileClient::connect()

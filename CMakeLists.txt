@@ -57,3 +57,4 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/server/certificate DESTINATION ser
 
 install(TARGETS beast_wss_file_client DESTINATION client)
 install(DIRECTORY DESTINATION client/download)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/client/certificate DESTINATION client/)

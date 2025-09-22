@@ -43,6 +43,11 @@ void WssFileServerSession::on_websocket_accept()
     ws.async_read(net_buffer, [self = shared_from_this()](beast::error_code ec, size_t) {
         if (ec)
         {
+            if (ec == websocket::error::closed)
+            {
+                return;
+            }
+
             std::cerr << "read error: " << boost::locale::conv::between(ec.message(), "UTF-8", "GBK") << std::endl;
             return;
         }
