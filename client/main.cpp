@@ -1,4 +1,4 @@
-#include <iostream>
+#include <spdlog/spdlog.h>
 
 #include "beast_wss_file_client.h"
 
@@ -8,7 +8,7 @@ int main(int argc, char* argv[])
 {
     if (argc != 2)
     {
-        std::cerr << "Usage: " << argv[0] << " <file_name>" << std::endl;
+        spdlog::error("Usage: {} <file_name>", argv[0]);
         return -1;
     }
 

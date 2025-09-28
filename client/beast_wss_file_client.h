@@ -10,6 +10,7 @@
 #include <boost/asio/connect.hpp>
 #include <boost/beast.hpp>
 #include <boost/beast/ssl.hpp>
+#include <spdlog/spdlog.h>
 
 namespace beast = boost::beast;
 namespace websocket = beast::websocket;
@@ -20,6 +21,13 @@ using tcp = boost::asio::ip::tcp;
 using std::string;
 using std::string_view;
 using std::vector;
+using std::shared_ptr;
+
+namespace wss_file_client
+{
+    constexpr size_t MAX_LOG_SIZE = 5 * 1024 * 1024;
+    constexpr size_t MAX_LOG_COUNT = 3;
+}
 
 class WssFileClient
 {
@@ -30,6 +38,7 @@ private:
     websocket::stream<beast::ssl_stream<beast::tcp_stream>> ws;
     string host;
     uint16_t port;
+    static shared_ptr<spdlog::logger> logger;
 
 public:
     WssFileClient(const char* host, uint16_t port, const char* cert_file);

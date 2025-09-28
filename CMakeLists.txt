@@ -12,11 +12,13 @@ set(FILE_CLIENT_DIR "client")
 
 find_package(Boost REQUIRED CONFIG COMPONENTS locale)
 find_package(OpenSSL REQUIRED)
+set(SPDLOG_INCLUDE_DIR $ENV{SPDLOG_INCLUDE_DIR})
 
 include_directories(
     ${Boost_INCLUDE_DIRS}
     ${FILE_SERVER_DIR}
     ${FILE_CLIENT_DIR}
+    ${SPDLOG_INCLUDE_DIR}
 )
 
 file(GLOB_RECURSE SERVER_FILES ${FILE_SERVER_DIR}/*.cpp)
@@ -54,7 +56,9 @@ set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/beast_wss_file_transfer_ins
 install(TARGETS beast_wss_file_server DESTINATION server)
 install(DIRECTORY DESTINATION server/files)
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/server/certificate DESTINATION server/)
+install(DIRECTORY DESTINATION server/log)
 
 install(TARGETS beast_wss_file_client DESTINATION client)
 install(DIRECTORY DESTINATION client/download)
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/client/certificate DESTINATION client/)
+install(DIRECTORY DESTINATION client/log)

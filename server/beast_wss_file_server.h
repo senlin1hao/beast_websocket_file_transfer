@@ -10,6 +10,8 @@
 #include <boost/asio/ssl.hpp>
 #include <boost/beast.hpp>
 #include <boost/beast/ssl.hpp>
+#include <spdlog/spdlog.h>
+#include <spdlog/async.h>
 
 namespace beast = boost::beast;
 namespace websocket = beast::websocket;
@@ -21,11 +23,16 @@ using std::ifstream;
 using std::string;
 using std::thread;
 using std::vector;
+using std::shared_ptr;
 
 namespace wss_file_server
 {
     constexpr int64_t NETWORK_TIMEOUT = 10; // seconds
     constexpr size_t FILE_BUFFER_SIZE = 4096;
+    constexpr size_t MAX_LOG_SIZE = 5 * 1024 * 1024;
+    constexpr size_t MAX_LOG_COUNT = 3;
+    constexpr size_t SESSION_LOG_QUEUE_SIZE = 8192;
+    constexpr size_t SESSION_LOG_THREAD_COUNT = 1;
 }
 
 class WssFileServerSession : public std::enable_shared_from_this<WssFileServerSession>
@@ -36,6 +43,7 @@ private:
     string file_name;
     ifstream file;
     vector<char> file_buffer;
+    static shared_ptr<spdlog::async_logger> logger;
 
     void on_ssl_handshake();
     void on_websocket_accept();
@@ -61,6 +69,7 @@ private:
     tcp::endpoint endpoint;
     ssl::context ssl_context;
     tcp::acceptor acceptor;
+    static shared_ptr<spdlog::logger> logger;
 
     void run();
 
